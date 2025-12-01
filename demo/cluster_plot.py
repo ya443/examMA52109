@@ -18,25 +18,50 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
+# Path of this script: demo/cluster_plot.py
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# Path of parent directory: EXAMMA52109/
+PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)
+
+# Add PROJECT_ROOT to Python path
+sys.path.insert(0, PROJECT_ROOT)
+
 from cluster_maker import run_clustering
 
 OUTPUT_DIR = "demo_output"
 
-
+# if there aren't the correct number of arguments (2)
 def main(args: List[str]) -> None:
     if len(args) != 1:
         print("Usage: python clustering_demo.py <input_csv>")
         sys.exit(1)
 
+# Handles FileNotFoundError if the input file does not exist
     input_path = args[0]
     if not os.path.exists(input_path):
         print(f"Error: file not found: {input_path}")
         sys.exit(1)
 
     os.makedirs(OUTPUT_DIR, exist_ok=True)
-
+        
+    print("=== cluster_maker demo: clustering with k = 2, 3, 4, 5 ===\n")
+    print("This demo loads a CSV dataset, selects the first two numeric features,")
+    print("and runs k-means clustering for k = 2, 3, 4, and 5.")
+    print("For each value of k, it:")
+    print("  • fits a clustering model,")
+    print("  • computes inertia and silhouette scores, and")
+    print("  • saves a 2D cluster plot and the metrics to the demo_output folder.\n")
+    # added description of demo fucntionality to improve user understanding.
+    
     # The CSV is assumed to have two or more data columns
     df = pd.read_csv(input_path)
+    
+    if df.empty:
+        print("Error: The input CSV contains no data.")
+        sys.exit(1) # added check for empty dataframe
+    
+    # checks the number of numeric columns as at least 2 are needed for 2D plotting    
     numeric_cols = [
         col for col in df.columns
         if pd.api.types.is_numeric_dtype(df[col])
@@ -55,11 +80,13 @@ def main(args: List[str]) -> None:
     for k in (2, 3, 4, 5):
         print(f"\n=== Running k-means with k = {k} ===")
 
-        result = run_clustering(
+        result = run_clustering(  # the main clustering function in interface
             input_path=input_path,
             feature_cols=feature_cols,
             algorithm="kmeans",
-            k = min(k, 3),
+            k = k , 
+            # Changed to k; the demo incorrectly used min(k,3), so k=4 and k=5 were both run
+            # as k=3. Using k ensures that each iterations runs k-means for that k.
             standardise=True,
             output_path=os.path.join(OUTPUT_DIR, f"{base}_clustered_k{k}.csv"),
             random_state=42,
@@ -86,9 +113,10 @@ def main(args: List[str]) -> None:
     metrics_df.to_csv(metrics_csv, index=False)
 
     # Plot some statistics (no elbow: avoid inertia vs k)
-    if "silhouette_score" in metrics_df.columns:
+    if "silhouette" in metrics_df.columns: 
+        # changed to silhouette as the silhouette score is saved as "silhouette" in metrics
         plt.figure()
-        plt.bar(metrics_df["k"], metrics_df["silhouette_score"])
+        plt.bar(metrics_df["k"], metrics_df["silhouette"]) # changed to silhouette
         plt.xlabel("k")
         plt.ylabel("Silhouette score")
         plt.title("Silhouette score for different k")
