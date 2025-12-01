@@ -29,7 +29,7 @@ sys.path.insert(0, PROJECT_ROOT)
 
 from cluster_maker import run_clustering
 
-OUTPUT_DIR = "demo_output"
+OUTPUT_DIR = "cluster_plot_demo_output"
 
 # if there aren't the correct number of arguments (2)
 def main(args: List[str]) -> None:
