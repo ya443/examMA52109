@@ -51,7 +51,6 @@ class TestPreprocessing(unittest.TestCase):
         ])
 
         X_std = standardise_features(X)
-
         # First column has zero variance → should become all zeros
         self.assertTrue(np.allclose(X_std[:,0], 0.0))
         

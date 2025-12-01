@@ -64,6 +64,8 @@ def plot_clusters_2d(
 
     fig.colorbar(scatter, ax=ax, label="Cluster label")
     fig.tight_layout()
+    out_fig = fig
+    plt.close(fig)
     return fig, ax
 
 
@@ -95,4 +97,6 @@ def plot_elbow(
     ax.set_title(title)
     ax.grid(True)
     fig.tight_layout()
+    out_fig = fig
+    plt.close(fig)
     return fig, ax
